@@ -161,19 +161,45 @@ form textarea:focus {
   border-color: #888;
 }
 
+/* フォーム全体を横並びにする */
+#update-character-form {
+  display: flex;
+  flex-wrap: wrap; /* 必要に応じて折り返し */
+  align-items: center; /* 垂直方向の中央揃え */
+  gap: 10px; /* 要素間の隙間 */
+}
+
+#update-character-form label {
+  margin-right: 5px; /* ラベルと入力の間のスペース */
+}
+
+#update-character-form input[type="text"],
+#update-character-form select,
+#update-character-form input[type="file"] {
+  padding: 5px;
+  font-size: 14px;
+  flex: 1; /* 横幅を均等にする */
+}
+
+#update-character-form button {
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
 /* ==============================
    テーブル
 ============================== */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 table th,
 table td {
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 8px;
   text-align: center;
   background-color: #fff;
 }
@@ -183,6 +209,7 @@ table th {
   top: 0;
   background-color: #666;
   color: white;
+  min-width: 20px; /* 最小幅 */
   max-width: 90px; /* 列の最大幅を設定（必要に応じて調整） */
 }
 
@@ -197,6 +224,8 @@ table th:first-child {
 
 table td:first-child {
   background-color: #555;
+  min-width: 20px; /* 最小幅 */
+  max-width: 50px; /* 列の最大幅を設定（必要に応じて調整） */
 }
 
 /* ==============================
@@ -318,75 +347,17 @@ ul li a:hover {
   display: block;
 }
 
-.edit-button {
-  display: none;
-}
-
 /* ==============================
-   その他スタイル
+   テーブル内要素
 ============================== */
-th {
-  text-align: center;
-  padding: 10px;
-  color: white; /* カラーコードが濃い場合も見やすくする */
-  border: 1px solid #ddd;
-  vertical-align: middle;
-}
-
-th[style] {
-  border: 1px solid #ddd;
-}
-
-th span {
-  font-size: inherit; /* 親要素のフォントサイズを継承 */
-  line-height: normal; /* 文字の行間も親要素に従う */
-  color: inherit; /* 親要素の色を継承 */
-}
-
-th.asc::after {
-  content: " ↑";
-  font-size: 0.8em;
-}
-
-th.desc::after {
-  content: " ↓";
-  font-size: 0.8em;
-}
-
-.delete-button {
-  background-color: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s;
-}
-
-.delete-button:hover {
-  background-color: #cc0000;
-}
-
-#add-category-form,
-#toggle-edit-mode {
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 10px;
-  padding: 5px 10px;
-  font-size: 14px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#add-category-form input[type="text"] {
-  width: 200px;
-  padding: 5px;
-}
-
-#add-category-form button:hover,
-#toggle-edit-mode:hover {
-  background-color: #ddd;
+.pl-name {
+  background-color: #f0f8ff; /* 背景色 */
+  color: #333; /* テキスト色 */
+  padding: 3px 5px; /* 内側の余白 */
+  border-radius: 5px; /* 角丸 */
+  display: inline-block; /* テキストに合わせた背景サイズ */
+  margin-bottom: 10px; /* 画像との間隔 */
+  font-weight: bold; /* 強調表示 */
 }
 
 /* ==============================

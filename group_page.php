@@ -1,22 +1,33 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+require __DIR__ . '/includes/db.php';
+require __DIR__ . '/fetch_skills.php';
 
-require 'includes/db.php';
-require 'fetch_skills.php';
 
-$group_id = $_GET['group_id'] ?? null;
+$group_id = isset($_GET['group_id']) ? filter_var($_GET['group_id'], FILTER_VALIDATE_INT) : 0;
 
-if (!$group_id || !is_numeric($group_id)) {
+if ($group_id <= 0) {
     echo "<p>無効なグループIDです。<a href='index.php'>戻る</a></p>";
     exit;
 }
 
+
+
+// グループが存在するか確認
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM `groups` WHERE id = ?");
+$stmt->execute([$group_id]);
+$groupExists = $stmt->fetchColumn();
+
+if (!$groupExists) {
+    echo "<p>指定されたグループは存在しません。<a href='index.php'>戻る</a></p>";
+    exit;
+}
+
 $stmt = $pdo->prepare("
-    SELECT `characters`.`id`, `characters`.`name`, `characters`.`occupation`, 
-           `characters`.`birthplace`, `characters`.`degree`, `characters`.`age`, 
-           `characters`.`sex`, COALESCE(`characters`.`color_code`, '#FFFFFF') AS color_code,
+    SELECT `characters`.`id`, `characters`.`name`, `characters`.`image_path`,
+           `characters`.`occupation`, `characters`.`birthplace`, 
+           `characters`.`degree`, `characters`.`age`, `characters`.`sex`, 
+           COALESCE(`characters`.`color_code`, '#FFFFFF') AS color_code,
+           `characters`.`player_name`, 
            `character_attributes`.`str`, `character_attributes`.`con`, 
            `character_attributes`.`pow`, `character_attributes`.`dex`, 
            `character_attributes`.`app`, `character_attributes`.`siz`,
@@ -29,8 +40,8 @@ $stmt = $pdo->prepare("
            ON `characters`.`id` = `character_attributes`.`character_id`
     WHERE `characters`.`group_id` = ?
 ");
-$stmt->execute([$group_id]);
 
+$stmt->execute([$group_id]);
 $characters = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 function adjustTextColor($backgroundColor)
@@ -110,12 +121,38 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                     <tr>
                         <th>カラム</th>
                         <?php foreach ($characters as $character): ?>
+
                             <th data-color="<?= htmlspecialchars($character['color_code']) ?>"
                                 style="text-align: center; background-color: <?= htmlspecialchars($character['color_code']) ?>;">
+
+                                <!-- PL 名表示 -->
+                                <span class="pl-name">
+                                    <?= htmlspecialchars($character['player_name'] ?? '未設定') ?>
+                                </span>
+                                <br>
+
+                                <!-- 画像を表示 -->
+                                <?php
+                                // デフォルト画像パス
+                                $defaultImagePath = 'images/kumaaikon.png';
+
+                                // キャラクターの画像パスを取得（なければデフォルト画像を表示）
+                                $iconPath = !empty($character['image_path'])
+                                    ? htmlspecialchars($character['image_path'])
+                                    : $defaultImagePath;
+                                ?>
+                                <img src="<?= htmlspecialchars($iconPath) ?>?v=<?= time(); ?>"
+                                    alt="<?= htmlspecialchars($character['name']) ?>"
+                                    style="width: 100px; height: 100px; object-fit: scale-down; border-radius: 20%;">
+
+                                <br>
+
+                                <!-- キャラクター名 -->
                                 <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
                                     <?= htmlspecialchars($character['name']) ?>
                                 </span>
                                 <br>
+                                <!-- 色コード -->
                                 <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
                                     <?= htmlspecialchars($character['color_code']) ?>
                                 </span>
@@ -127,8 +164,11 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                                         style="width: 80px; text-align: center;">
                                 </div>
                             </th>
+
+
+
                         <?php endforeach; ?>
-                        <th>操作</th>
+                        <th>以上</th>
                     </tr>
                 </thead>
 
@@ -182,7 +222,44 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
 
                 </tbody>
             </table>
+
+            <div class="button-container">
+                <button id="toggle-image-pl-form">画像とPL名を登録</button>
+            </div>
+
+            <div id="image-pl-form-section" style="display: none; margin-top: 20px;">
+                <!-- 画像とPL名の登録フォーム -->
+                <form id="image-pl-form" action="upload_image.php" method="POST" enctype="multipart/form-data">
+                    <!-- キャラクター選択 -->
+                    <label for="character-select">キャラクターを選択:</label>
+                    <select name="character_id" id="character-select" style="margin-bottom: 10px;">
+                        <?php foreach ($characters as $character): ?>
+                            <option value="<?= htmlspecialchars($character['id']) ?>">
+                                <?= htmlspecialchars($character['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <!-- グループID -->
+                    <input type="hidden" name="group_id" value="<?= htmlspecialchars($group_id) ?>">
+
+                    <!-- PL名の入力 -->
+                    <label for="pl-name">PL名:</label>
+                    <input type="text" name="player_name" id="pl-name" placeholder="PL名を入力"
+                        style="width: 80%; padding: 5px; margin-bottom: 10px;">
+
+                    <!-- 画像のアップロード -->
+                    <label for="character-image">画像を選択:</label>
+                    <input type="file" name="character_image" id="character-image" accept="image/*"
+                        style="margin-bottom: 10px;">
+
+                    <!-- 送信ボタン -->
+                    <button type="submit" style="margin-top: 5px;">登録</button>
+                </form>
+            </div>
+
             <button id="toggle-basic-edit-mode">基本情報の変更</button>
+
         </div>
 
 
@@ -199,12 +276,31 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                         <?php foreach ($characters as $character): ?>
                             <th data-color="<?= htmlspecialchars($character['color_code']) ?>"
                                 style="text-align: center; background-color: <?= htmlspecialchars($character['color_code']) ?>;">
-                                <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
-                                    <?= htmlspecialchars($character['name']) ?>
+
+                                <!-- PL 名表示 -->
+                                <span class="pl-name">
+                                    <?= htmlspecialchars($character['player_name'] ?? '未設定') ?>
                                 </span>
                                 <br>
+
+                                <!-- 画像を表示 -->
+                                <?php
+                                // デフォルト画像パス
+                                $defaultImagePath = 'images/kumaaikon.png';
+
+                                // キャラクターの画像パスを取得（なければデフォルト画像を表示）
+                                $iconPath = !empty($character['image_path'])
+                                    ? htmlspecialchars($character['image_path'])
+                                    : $defaultImagePath;
+                                ?>
+                                <img src="<?= htmlspecialchars($iconPath) ?>?v=<?= time(); ?>"
+                                    alt="<?= htmlspecialchars($character['name']) ?>"
+                                    style="width: 100px; height: 100px; object-fit: cover; border-radius: 20%;">
+                                <br>
+
+                                <!-- キャラクター名 -->
                                 <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
-                                    <?= htmlspecialchars($character['color_code']) ?>
+                                    <?= htmlspecialchars($character['name']) ?>
                                 </span>
                             </th>
                         <?php endforeach; ?>
@@ -389,16 +485,36 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                         <?php foreach ($characters as $character): ?>
                             <th data-color="<?= htmlspecialchars($character['color_code']) ?>"
                                 style="text-align: center; background-color: <?= htmlspecialchars($character['color_code']) ?>;">
+
+                                <!-- PL 名表示 -->
+                                <span class="pl-name">
+                                    <?= htmlspecialchars($character['player_name'] ?? '未設定') ?>
+                                </span>
+                                <br>
+
+                                <!-- 画像を表示 -->
+                                <?php
+                                // デフォルト画像パス
+                                $defaultImagePath = 'images/kumaaikon.png';
+
+                                // キャラクターの画像パスを取得（なければデフォルト画像を表示）
+                                $iconPath = !empty($character['image_path'])
+                                    ? htmlspecialchars($character['image_path'])
+                                    : $defaultImagePath;
+                                ?>
+                                <img src="<?= htmlspecialchars($iconPath) ?>?v=<?= time(); ?>"
+                                    alt="<?= htmlspecialchars($character['name']) ?>"
+                                    style="width: 100px; height: 100px; object-fit: cover; border-radius: 20%;">
+
+                                <br>
+
+                                <!-- キャラクター名 -->
                                 <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
                                     <?= htmlspecialchars($character['name']) ?>
                                 </span>
-                                <br>
-                                <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
-                                    <?= htmlspecialchars($character['color_code']) ?>
-                                </span>
                             </th>
                         <?php endforeach; ?>
-                        <th>操作</th>
+                        <th>以上</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -412,7 +528,6 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                                         class="value-display"><?= htmlspecialchars($skills[$character['id']][$skill_name] ?? '-') ?></span>
                                 </td>
                             <?php endforeach; ?>
-                            <td></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -434,12 +549,31 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                         <?php foreach ($characters as $character): ?>
                             <th data-color="<?= htmlspecialchars($character['color_code']) ?>"
                                 style="text-align: center; background-color: <?= htmlspecialchars($character['color_code']) ?>;">
-                                <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
-                                    <?= htmlspecialchars($character['name']) ?>
+
+                                <!-- PL 名表示 -->
+                                <span class="pl-name">
+                                    <?= htmlspecialchars($character['player_name'] ?? '未設定') ?>
                                 </span>
                                 <br>
+
+                                <!-- 画像を表示 -->
+                                <?php
+                                // デフォルト画像パス
+                                $defaultImagePath = 'images/kumaaikon.png';
+
+                                // キャラクターの画像パスを取得（なければデフォルト画像を表示）
+                                $iconPath = !empty($character['image_path'])
+                                    ? htmlspecialchars($character['image_path'])
+                                    : $defaultImagePath;
+                                ?>
+                                <img src="<?= htmlspecialchars($iconPath) ?>?v=<?= time(); ?>"
+                                    alt="<?= htmlspecialchars($character['name']) ?>"
+                                    style="width: 100px; height: 100px; object-fit: cover; border-radius: 20%;">
+                                <br>
+
+                                <!-- キャラクター名 -->
                                 <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
-                                    <?= htmlspecialchars($character['color_code']) ?>
+                                    <?= htmlspecialchars($character['name']) ?>
                                 </span>
                             </th>
                         <?php endforeach; ?>
@@ -504,6 +638,30 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
     <script>
         const groupId = <?= json_encode($group_id); ?>;
     </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const toggleImagePLButton = document.getElementById("toggle-image-pl-form");
+            const imagePLFormSection = document.getElementById("image-pl-form-section");
+
+            if (toggleImagePLButton && imagePLFormSection) {
+                toggleImagePLButton.addEventListener("click", () => {
+                    // フォームの表示・非表示を切り替え
+                    imagePLFormSection.style.display =
+                        imagePLFormSection.style.display === "none" ? "block" : "none";
+
+                    // ボタンのテキスト変更
+                    toggleImagePLButton.textContent =
+                        toggleImagePLButton.textContent === "画像とPL名を登録"
+                            ? "登録フォームを閉じる"
+                            : "画像とPL名を登録";
+                });
+            } else {
+                console.error("Image and PL form toggle button or form section not found.");
+            }
+        });
+    </script>
+
 
 </body>
 

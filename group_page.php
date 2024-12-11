@@ -1,24 +1,15 @@
 <?php
-require __DIR__ . '/includes/db.php';
-require __DIR__ . '/fetch_skills.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
+require 'includes/db.php';
+require 'fetch_skills.php';
 
-$group_id = isset($_GET['group_id']) ? filter_var($_GET['group_id'], FILTER_VALIDATE_INT) : 0;
+$group_id = $_GET['group_id'] ?? null;
 
-if ($group_id <= 0) {
+if (!$group_id || !is_numeric($group_id)) {
     echo "<p>無効なグループIDです。<a href='index.php'>戻る</a></p>";
-    exit;
-}
-
-
-
-// グループが存在するか確認
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM `groups` WHERE id = ?");
-$stmt->execute([$group_id]);
-$groupExists = $stmt->fetchColumn();
-
-if (!$groupExists) {
-    echo "<p>指定されたグループは存在しません。<a href='index.php'>戻る</a></p>";
     exit;
 }
 
@@ -464,7 +455,6 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                         <?php endforeach; ?>
                         <td></td> <!-- 操作列の空白 -->
                     </tr>
-
                 </tbody>
             </table>
             <button id="toggle-abilities-edit-mode">能力値の変更</button>
@@ -476,9 +466,8 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
         <div id="skills" class="tab-content">
             <table id="sortable-table">
                 <div>
-                    <input type="text" class="column-search" placeholder="検索: 例 年齢, STR, 目星">
+                    <input type="text" class="column-search" placeholder="検索: 例 STR, DEX, POW">
                 </div>
-
                 <thead>
                     <tr>
                         <th>技能</th>
@@ -505,7 +494,6 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                                 <img src="<?= htmlspecialchars($iconPath) ?>?v=<?= time(); ?>"
                                     alt="<?= htmlspecialchars($character['name']) ?>"
                                     style="width: 100px; height: 100px; object-fit: cover; border-radius: 20%;">
-
                                 <br>
 
                                 <!-- キャラクター名 -->
@@ -514,7 +502,7 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                                 </span>
                             </th>
                         <?php endforeach; ?>
-                        <th>以上</th>
+                        <th>以上</th> <!-- 操作列 -->
                     </tr>
                 </thead>
                 <tbody>
@@ -528,6 +516,7 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                                         class="value-display"><?= htmlspecialchars($skills[$character['id']][$skill_name] ?? '-') ?></span>
                                 </td>
                             <?php endforeach; ?>
+                            <td></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -583,7 +572,7 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                 <tbody>
                     <?php
                     // カテゴリを取得
-                    $stmt = $pdo->prepare("SELECT * FROM categories WHERE group_id = ?");
+                    $stmt = $pdo->prepare("SELECT * FROM `categories` WHERE `group_id` = ?");
                     $stmt->execute([$group_id]);
                     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -646,20 +635,31 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
 
             if (toggleImagePLButton && imagePLFormSection) {
                 toggleImagePLButton.addEventListener("click", () => {
-                    // フォームの表示・非表示を切り替え
-                    imagePLFormSection.style.display =
-                        imagePLFormSection.style.display === "none" ? "block" : "none";
+                    // 現在の表示状態を取得
+                    const isHidden = window.getComputedStyle(imagePLFormSection).display === "none";
 
-                    // ボタンのテキスト変更
+                    // 表示状態を切り替え
+                    imagePLFormSection.style.display = isHidden ? "block" : "none";
+
+                    // ボタンテキストを切り替え
+                    toggleImagePLButton.dataset.toggleState =
+                        toggleImagePLButton.dataset.toggleState === "open" ? "closed" : "open";
+
                     toggleImagePLButton.textContent =
-                        toggleImagePLButton.textContent === "画像とPL名を登録"
+                        toggleImagePLButton.dataset.toggleState === "open"
                             ? "登録フォームを閉じる"
                             : "画像とPL名を登録";
                 });
             } else {
-                console.error("Image and PL form toggle button or form section not found.");
+                if (!toggleImagePLButton) {
+                    console.error("Toggle button with ID 'toggle-image-pl-form' not found.");
+                }
+                if (!imagePLFormSection) {
+                    console.error("Form section with ID 'image-pl-form-section' not found.");
+                }
             }
         });
+
     </script>
 
 

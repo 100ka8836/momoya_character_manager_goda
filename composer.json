@@ -1,0 +1,21 @@
+{
+    "name": "momoya/character-manager",
+    "description": "momoya-Project",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Momoya\\CharacterManager\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "100ka8836",
+            "email": "100ka8836@gmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.9",
+        "vlucas/phpdotenv": "^5.6"
+    }
+}

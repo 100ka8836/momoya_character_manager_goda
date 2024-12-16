@@ -139,7 +139,8 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                                 <br>
 
                                 <!-- キャラクター名 -->
-                                <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
+                                <span class="character-name"
+                                    style="color: <?= adjustTextColor($character['color_code']) ?>;">
                                     <?= htmlspecialchars($character['name']) ?>
                                 </span>
                                 <br>
@@ -290,7 +291,8 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                                 <br>
 
                                 <!-- キャラクター名 -->
-                                <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
+                                <span class="character-name"
+                                    style="color: <?= adjustTextColor($character['color_code']) ?>;">
                                     <?= htmlspecialchars($character['name']) ?>
                                 </span>
                             </th>
@@ -497,7 +499,8 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                                 <br>
 
                                 <!-- キャラクター名 -->
-                                <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
+                                <span class="character-name"
+                                    style="color: <?= adjustTextColor($character['color_code']) ?>;">
                                     <?= htmlspecialchars($character['name']) ?>
                                 </span>
                             </th>
@@ -561,9 +564,11 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                                 <br>
 
                                 <!-- キャラクター名 -->
-                                <span style="color: <?= adjustTextColor($character['color_code']) ?>;">
+                                <span class="character-name"
+                                    style="color: <?= adjustTextColor($character['color_code']) ?>;">
                                     <?= htmlspecialchars($character['name']) ?>
                                 </span>
+
                             </th>
                         <?php endforeach; ?>
                         <th>操作</th> <!-- 削除ボタン用の列 -->
@@ -597,7 +602,7 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
                                 </td>
                             <?php endforeach; ?>
                             <td>
-                                <form method="POST" action="delete_category.php" style="display: inline;">
+                                <form method="POST" action="delete_category.php">
                                     <input type="hidden" name="category_id"
                                         value="<?= htmlspecialchars($category['id']); ?>">
                                     <input type="hidden" name="group_id" value="<?= htmlspecialchars($group_id); ?>">

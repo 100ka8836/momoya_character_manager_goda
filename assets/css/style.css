@@ -126,35 +126,14 @@ main {
   color: white; /* テキスト色 */
 }
 
-/* レスポンシブ対応：幅が狭い画面でさらに調整 */
-@media (max-width: 768px) {
-  #sortable-table {
-    font-size: 12px; /* テーブル全体のフォントサイズをさらに縮小 */
-  }
-
-  #sortable-table th,
-  #sortable-table td {
-    padding: 3px; /* セル内の余白をさらに縮小 */
-  }
-
-  #sortable-table img {
-    max-width: 40px; /* 画像のサイズを縮小 */
-  }
+.pl-name {
+  font-size: 14px; /* フォントサイズを小さく */
+  padding: 3px 4px; /* パディングを少し縮小 */
+  line-height: 1; /* デフォルトより狭い行間 */
 }
 
-@media (max-width: 480px) {
-  #sortable-table {
-    font-size: 10px; /* モバイル用にフォントを最小化 */
-  }
-
-  #sortable-table th,
-  #sortable-table td {
-    padding: 2px; /* 最小限の余白 */
-  }
-
-  #sortable-table img {
-    max-width: 30px; /* 画像をさらに縮小 */
-  }
+.character-name {
+  font-size: 1em !important; /* デフォルトフォントサイズ */
 }
 
 /* ==============================
@@ -393,50 +372,147 @@ ul li a:hover {
 /* ==============================
    削除ボタン
 ============================== */
+/* ボタンのスタイルを親要素に合わせて伸縮可能に */
 button.delete-button {
-  background-color: #d8afaf; /* 明るい赤 */
-  color: white; /* 白文字 */
-  border: 2px solid #3f1414; /* 赤枠 */
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+  width: 90%; /* 親要素に合わせる */
+  height: auto; /* 高さを自動調整 */
+  padding: 5px; /* 適切な余白を設定 */
+  font-size: 1em; /* 親要素のフォントサイズに依存 */
+  border: 2px solid #3f1414; /* ボタンの枠線 */
+  border-radius: 5px; /* 角丸を維持 */
+  background-color: #d8afaf; /* ボタンの背景色 */
+  color: white; /* テキストの色 */
+  cursor: pointer; /* ポインタを表示 */
+  text-align: center; /* テキストを中央揃え */
+  margin-left: 2px; /* 左に10pxの余白を追加 */
 }
 
+/* ボタンホバー時のスタイル */
 button.delete-button:hover {
-  background-color: #ff0000; /* 濃い赤 */
-  color: white;
-  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.5); /* 赤のシャドウ */
+  background-color: #ff0000; /* ホバー時の背景色 */
+  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.5); /* ホバー時の影 */
+}
+
+/* ボタンを親要素内で自然に拡大縮小させる */
+form {
+  display: block; /* formの横幅を親要素に広げる */
+  width: 100%; /* 親要素に合わせてフォーム幅を拡大 */
+}
+
+form button {
+  display: block; /* ボタンをブロック要素に設定 */
+  width: 100%; /* 親要素に合わせてサイズを変更可能に */
 }
 
 /* ==============================
    レスポンシブ対応
 ============================== */
-@media (max-width: 768px) {
-  header nav ul {
-    flex-direction: column;
-    gap: 10px;
+
+/* 画面幅が700px以下の場合（タブレットサイズ） */
+@media (max-width: 700px) {
+  html {
+    font-size: 10px; /* 基本フォントサイズを縮小 */
   }
 
-  header nav ul li {
-    text-align: center;
+  /* テーブル全体のフォントサイズを調整 */
+  #sortable-table {
+    font-size: 9px; /* テーブル全体のフォントサイズを少し縮小 */
   }
 
-  .modal-content {
-    width: 90%;
-    padding: 15px;
+  /* テーブルセルの余白とフォントサイズを調整 */
+  #sortable-table th,
+  #sortable-table td {
+    padding: 4px; /* セル内の余白を縮小 */
+    font-size: 9px; /* フォントサイズを縮小 */
+  }
+
+  /* テーブル内の画像サイズを調整 */
+  #sortable-table img {
+    max-width: 35px; /* 画像の幅を制限 */
+    height: auto; /* 縦横比を維持 */
+  }
+
+  .pl-name {
+    font-size: 10px; /* フォントサイズを小さく */
+    padding: 1px 2px; /* パディングを少し縮小 */
+    line-height: 0.7; /* デフォルトより狭い行間 */
+  }
+
+  .character-name {
+    font-size: 6px; /* キャラクター名のフォントサイズを縮小 */
+  }
+
+  #sortable-table th:first-child,
+  #sortable-table td:first-child {
+    width: 40px; /* 最初の列の幅を縮小 */
+  }
+
+  /* 削除ボタンのスタイル調整 */
+  button.delete-button {
+    font-size: 0.8em; /* ボタン内フォントサイズを調整 */
+    padding: 4px; /* ボタンの余白を縮小 */
+    width: 100%; /* 親要素に合わせて幅を調整 */
   }
 }
 
-@keyframes modal-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
+/* 画面幅が480px以下の場合（スマホサイズ） */
+@media (max-width: 480px) {
+  html {
+    font-size: 8px; /* 基本フォントサイズをさらに縮小 */
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  /* テーブル全体のフォントサイズを縮小 */
+  #sortable-table {
+    font-size: 8px; /* 小さいフォントサイズに変更 */
+  }
+
+  /* テーブル行の高さを調整 */
+  #sortable-table tr {
+    height: 20px; /* 行の高さを縮小 */
+  }
+
+  /* セル内余白とフォントサイズをさらに調整 */
+  #sortable-table th,
+  #sortable-table td {
+    padding: 2px; /* セル内余白を最小限に */
+    font-size: 8px; /* フォントサイズをさらに縮小 */
+  }
+
+  /* テーブル内の画像サイズを調整 */
+  #sortable-table img {
+    max-width: 25px; /* 画像の幅をさらに制限 */
+    height: auto; /* 縦横比を維持 */
+  }
+
+  .pl-name {
+    font-size: 10px; /* フォントサイズを小さく */
+    padding: 1px 2px; /* パディングを少し縮小 */
+    line-height: 0.7; /* デフォルトより狭い行間 */
+  }
+
+  .character-name {
+    font-size: 5px; /* キャラクター名のフォントサイズを縮小 */
+  }
+
+  #sortable-table th:first-child,
+  #sortable-table td:first-child {
+    width: 30px; /* 最初の列の幅を縮小 */
+  }
+
+  /* 削除ボタンのスタイル調整 */
+  button.delete-button {
+    font-size: 0.7em; /* ボタン内フォントサイズをさらに縮小 */
+    padding: 3px; /* ボタンの余白をさらに縮小 */
+    width: 100%; /* 親要素に合わせて幅を調整 */
+  }
+
+  /* フォームのスタイルを調整 */
+  form {
+    width: 100%; /* フォームを親要素に合わせて幅を調整 */
+  }
+
+  form button {
+    font-size: 0.8em; /* ボタン内フォントサイズを調整 */
+    padding: 3px; /* ボタンの余白をさらに縮小 */
   }
 }

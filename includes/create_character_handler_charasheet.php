@@ -66,7 +66,7 @@ function saveCharacterToDatabase($pdo, $data, $skills, $customSkills)
             $data['pc_making_memo'] ?? null,
             $data['pc_making_memo'] ?? null,
             $data['source_url'] ?? null,
-            $_POST['group_id'] ?? null // 新たに追加
+            $_POST['group_id'] ?? null
         ]);
         $characterId = $pdo->lastInsertId();
 

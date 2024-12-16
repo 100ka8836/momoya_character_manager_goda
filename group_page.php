@@ -124,17 +124,17 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
 
                                 <!-- 画像を表示 -->
                                 <?php
-                                // デフォルト画像パス
                                 $defaultImagePath = 'images/kumaaikon.png';
-
-                                // キャラクターの画像パスを取得（なければデフォルト画像を表示）
                                 $iconPath = !empty($character['image_path'])
                                     ? htmlspecialchars($character['image_path'])
                                     : $defaultImagePath;
+
+                                // 新しいクラスを追加
+                                $imgClass = !empty($character['image_path']) ? 'custom-image' : 'default-image';
                                 ?>
-                                <img src="<?= htmlspecialchars($iconPath) ?>?v=<?= time(); ?>"
-                                    alt="<?= htmlspecialchars($character['name']) ?>"
-                                    style="width: 100px; height: 100px; object-fit: scale-down; border-radius: 20%;">
+                                <img src="<?= $iconPath ?>?v=<?= time(); ?>"
+                                    alt="<?= htmlspecialchars($character['name']) ?>" class="<?= $imgClass ?>"
+                                    style="width: 100px; height: 100px; object-fit: cover; border-radius: 20%;">
 
                                 <br>
 
@@ -276,16 +276,16 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
 
                                 <!-- 画像を表示 -->
                                 <?php
-                                // デフォルト画像パス
                                 $defaultImagePath = 'images/kumaaikon.png';
-
-                                // キャラクターの画像パスを取得（なければデフォルト画像を表示）
                                 $iconPath = !empty($character['image_path'])
                                     ? htmlspecialchars($character['image_path'])
                                     : $defaultImagePath;
+
+                                // 新しいクラスを追加
+                                $imgClass = !empty($character['image_path']) ? 'custom-image' : 'default-image';
                                 ?>
-                                <img src="<?= htmlspecialchars($iconPath) ?>?v=<?= time(); ?>"
-                                    alt="<?= htmlspecialchars($character['name']) ?>"
+                                <img src="<?= $iconPath ?>?v=<?= time(); ?>"
+                                    alt="<?= htmlspecialchars($character['name']) ?>" class="<?= $imgClass ?>"
                                     style="width: 100px; height: 100px; object-fit: cover; border-radius: 20%;">
                                 <br>
 
@@ -483,16 +483,16 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
 
                                 <!-- 画像を表示 -->
                                 <?php
-                                // デフォルト画像パス
                                 $defaultImagePath = 'images/kumaaikon.png';
-
-                                // キャラクターの画像パスを取得（なければデフォルト画像を表示）
                                 $iconPath = !empty($character['image_path'])
                                     ? htmlspecialchars($character['image_path'])
                                     : $defaultImagePath;
+
+                                // 新しいクラスを追加
+                                $imgClass = !empty($character['image_path']) ? 'custom-image' : 'default-image';
                                 ?>
-                                <img src="<?= htmlspecialchars($iconPath) ?>?v=<?= time(); ?>"
-                                    alt="<?= htmlspecialchars($character['name']) ?>"
+                                <img src="<?= $iconPath ?>?v=<?= time(); ?>"
+                                    alt="<?= htmlspecialchars($character['name']) ?>" class="<?= $imgClass ?>"
                                     style="width: 100px; height: 100px; object-fit: cover; border-radius: 20%;">
                                 <br>
 
@@ -547,16 +547,16 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
 
                                 <!-- 画像を表示 -->
                                 <?php
-                                // デフォルト画像パス
                                 $defaultImagePath = 'images/kumaaikon.png';
-
-                                // キャラクターの画像パスを取得（なければデフォルト画像を表示）
                                 $iconPath = !empty($character['image_path'])
                                     ? htmlspecialchars($character['image_path'])
                                     : $defaultImagePath;
+
+                                // 新しいクラスを追加
+                                $imgClass = !empty($character['image_path']) ? 'custom-image' : 'default-image';
                                 ?>
-                                <img src="<?= htmlspecialchars($iconPath) ?>?v=<?= time(); ?>"
-                                    alt="<?= htmlspecialchars($character['name']) ?>"
+                                <img src="<?= $iconPath ?>?v=<?= time(); ?>"
+                                    alt="<?= htmlspecialchars($character['name']) ?>" class="<?= $imgClass ?>"
                                     style="width: 100px; height: 100px; object-fit: cover; border-radius: 20%;">
                                 <br>
 

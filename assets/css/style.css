@@ -34,7 +34,6 @@ header {
 }
 
 header nav {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -68,21 +67,94 @@ header nav ul li a:hover {
 /* ==============================
    メインコンテンツ
 ============================== */
+/* main: テーブルが親要素からはみ出さないようにする */
 main {
-  width: 90%;
-  max-width: 1920px;
-  margin-top: 20px;
-  padding: 20px;
+  width: 97%; /* 親要素の幅に収まる */
+  margin: 10px auto; /* 中央揃え */
+  padding: 10px;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-main h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #444;
+/* ==============================
+   テーブル
+============================== */
+#sortable-table {
+  width: 100%; /* 親要素に合わせる */
+  max-width: 100%; /* 親要素を超えないように制限 */
+  border-collapse: collapse; /* セルの境界を統一 */
+  table-layout: fixed; /* 列幅を固定 */
+}
+
+#sortable-table th,
+#sortable-table td {
+  border: 1px solid #ddd; /* セルの境界線 */
+  padding: 5px; /* セルの余白を縮小 */
+  text-align: center; /* テキストを中央揃え */
+  white-space: normal; /* テキストを折り返し可能に */
+  word-wrap: break-word; /* 長い単語を折り返す */
+  overflow: hidden; /* 内容が溢れないようにする */
+}
+
+/* セル内の画像がセルサイズに自動でフィットする */
+.default-image,
+.custom-image {
+  width: 100% !important; /* 親要素に合わせる */
+  height: auto !important; /* 縦横比を維持 */
+  object-fit: contain !important; /* セル内で画像を完全に表示（収める） */
+  display: block !important; /* 画像をブロック要素にして余白を消す */
+  margin: 0 auto !important; /* 水平中央揃え */
+  object-fit: contain !important; /* セル全体を埋める */
+}
+
+#sortable-table th {
+  position: sticky; /* スクロール時に固定 */
+  top: 0; /* ヘッダーを画面上部に固定 */
+  font-size: 12px; /* ヘッダーのフォントサイズを小さく */
+  background-color: #666; /* 背景色 */
+  color: white; /* テキスト色 */
+}
+
+#sortable-table td {
+  font-size: 15px; /* データセルのフォントサイズを小さく */
+}
+
+#sortable-table td:first-child {
+  background-color: #666; /* 背景色 */
+  color: white; /* テキスト色 */
+}
+
+/* レスポンシブ対応：幅が狭い画面でさらに調整 */
+@media (max-width: 768px) {
+  #sortable-table {
+    font-size: 12px; /* テーブル全体のフォントサイズをさらに縮小 */
+  }
+
+  #sortable-table th,
+  #sortable-table td {
+    padding: 3px; /* セル内の余白をさらに縮小 */
+  }
+
+  #sortable-table img {
+    max-width: 40px; /* 画像のサイズを縮小 */
+  }
+}
+
+@media (max-width: 480px) {
+  #sortable-table {
+    font-size: 10px; /* モバイル用にフォントを最小化 */
+  }
+
+  #sortable-table th,
+  #sortable-table td {
+    padding: 2px; /* 最小限の余白 */
+  }
+
+  #sortable-table img {
+    max-width: 30px; /* 画像をさらに縮小 */
+  }
 }
 
 /* ==============================
@@ -144,7 +216,6 @@ form input,
 form select,
 form textarea {
   width: 100%;
-  max-width: 500px;
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ddd;
@@ -185,46 +256,6 @@ form textarea:focus {
   padding: 5px 10px;
   font-size: 14px;
   cursor: pointer;
-}
-
-/* ==============================
-   テーブル
-============================== */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-table th,
-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-  background-color: #fff;
-}
-
-table th {
-  position: sticky;
-  top: 0;
-  background-color: #666;
-  color: white;
-  max-width: 90px; /* 列の最大幅を設定（必要に応じて調整） */
-}
-
-table td:first-child,
-table th:first-child {
-  position: sticky;
-  left: 0;
-  background-color: #666;
-  color: white;
-  font-weight: bold;
-}
-
-table td:first-child {
-  background-color: #555;
-  min-width: 20px; /* 最小幅 */
-  max-width: 50px; /* 列の最大幅を設定（必要に応じて調整） */
 }
 
 /* ==============================
@@ -357,6 +388,26 @@ ul li a:hover {
   display: inline-block; /* テキストに合わせた背景サイズ */
   margin-bottom: 10px; /* 画像との間隔 */
   font-weight: bold; /* 強調表示 */
+}
+
+/* ==============================
+   削除ボタン
+============================== */
+button.delete-button {
+  background-color: #d8afaf; /* 明るい赤 */
+  color: white; /* 白文字 */
+  border: 2px solid #3f1414; /* 赤枠 */
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+button.delete-button:hover {
+  background-color: #ff0000; /* 濃い赤 */
+  color: white;
+  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.5); /* 赤のシャドウ */
 }
 
 /* ==============================

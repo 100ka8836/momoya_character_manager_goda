@@ -89,6 +89,8 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
     <script src="assets/js/edit_ability_value.js" defer></script>
     <script src="assets/js/edit_color_code.js" defer></script>
     <script src="assets/js/dynamic_lighten_color.js" defer></script>
+    <script src="assets/js/adjust_character_name.js" defer></script>
+
 
 </head>
 
@@ -100,6 +102,7 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
             <button class="tab-button" data-tab="abilities">能力</button>
             <button class="tab-button" data-tab="skills">技能</button>
             <button class="tab-button" data-tab="other">その他</button>
+            <button class="tab-button" data-tab="timeline">年表</button>
         </div>
 
         <!-- 基本情報タブ -->
@@ -625,6 +628,177 @@ echo "<script>const characters = " . json_encode($characters, JSON_HEX_TAG | JSO
             <button id="toggle-edit-mode">キャラクター情報の変更</button>
         </div>
 
+
+
+        <!-- 年表タブのコンテンツ -->
+        <div id="timeline" class="tab-content">
+            <!-- イベントを追加ボタン -->
+            <button id="add-event-button">イベントを追加</button>
+
+            <?php
+            // キャラクター情報を取得（グループごとに絞り込み）
+            $stmt = $pdo->prepare("
+              SELECT `id`, `name`, `age`
+             FROM `characters`
+              WHERE `group_id` = ?
+              ORDER BY `age`
+             ");
+            $stmt->execute([$group_id]);
+            $characters = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            ?>
+
+            <!-- イベント追加フォーム -->
+            <div id="add-event-form-container" style="display: none; margin-top: 20px;">
+                <form id="add-event-form">
+                    <label for="character-select-timeline">キャラクターを選択:</label>
+                    <select name="character_id" id="character-select-timeline" required>
+                        <?php foreach ($characters as $character): ?>
+                            <option value="<?= htmlspecialchars($character['id']) ?>"
+                                data-current-age="<?= htmlspecialchars($character['age'] ?? '未設定') ?>">
+                                <?= htmlspecialchars($character['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <label for="current-age">現在の年齢:</label>
+                    <input type="number" id="current-age" name="current_age" placeholder="キャラクターの現在年齢" readonly>
+
+                    <label for="event-title">イベントタイトル:</label>
+                    <input type="text" id="event-title" name="event_title" placeholder="イベントタイトルを入力" required>
+
+                    <label for="event-color">イベントの色:</label>
+                    <div id="color-options">
+                        <label>
+                            <input type="radio" name="event_color" value="#FF5733" required>
+                            <span class="color-box" style="background-color: #FF5733;"></span> 赤
+                        </label>
+                        <label>
+                            <input type="radio" name="event_color" value="#33FF57">
+                            <span class="color-box" style="background-color: #33FF57;"></span> 緑
+                        </label>
+                        <label>
+                            <input type="radio" name="event_color" value="#3357FF">
+                            <span class="color-box" style="background-color: #3357FF;"></span> 青
+                        </label>
+                        <label>
+                            <input type="radio" name="event_color" value="#FFFF33">
+                            <span class="color-box" style="background-color: #FFFF33;"></span> 黄
+                        </label>
+                        <label>
+                            <input type="radio" name="event_color" value="#FF33FF">
+                            <span class="color-box" style="background-color: #FF33FF;"></span> ピンク
+                        </label>
+                        <label>
+                            <input type="radio" name="event_color" value="#33FFFF">
+                            <span class="color-box" style="background-color: #33FFFF;"></span> 水色
+                        </label>
+                        <label>
+                            <input type="radio" name="event_color" value="#FFFFFF">
+                            <span class="color-box" style="background-color: #FFFFFF; border: 1px solid #000;"></span> 白
+                        </label>
+                    </div>
+
+
+                    <label for="event-age">イベントが発生した年齢:</label>
+                    <input type="number" id="event-age" name="event_age" placeholder="例: 10 (10歳のときのイベント)" required>
+
+                    <button type="submit">年表に追加</button>
+                </form>
+            </div>
+
+
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const timelineCharacterSelect = document.getElementById("character-select-timeline");
+                    const currentAgeInput = document.getElementById("current-age");
+
+                    if (!timelineCharacterSelect || !currentAgeInput) {
+                        console.error("年表タブの要素が見つかりません");
+                        return;
+                    }
+
+                    // キャラクター選択時に現在の年齢を表示
+                    timelineCharacterSelect.addEventListener("change", () => {
+                        const selectedOption = timelineCharacterSelect.options[timelineCharacterSelect.selectedIndex];
+                        const currentAge = selectedOption.getAttribute("data-current-age");
+
+                        if (currentAge && currentAge !== '未設定') {
+                            currentAgeInput.value = currentAge; // 選択されたキャラクターの年齢を表示
+                        } else {
+                            currentAgeInput.value = ""; // 年齢が未設定の場合は空白に
+                        }
+                    });
+
+                    // ページロード時に最初のキャラクター年齢を表示
+                    if (timelineCharacterSelect.options.length > 0) {
+                        const selectedOption = timelineCharacterSelect.options[timelineCharacterSelect.selectedIndex];
+                        const currentAge = selectedOption.getAttribute("data-current-age");
+
+                        if (currentAge && currentAge !== '未設定') {
+                            currentAgeInput.value = currentAge; // 初期表示として設定
+                        } else {
+                            currentAgeInput.value = ""; // 初期キャラクターに年齢がない場合は空白に
+                        }
+                    }
+                });
+            </script>
+
+            <!-- タイムラインを表示 -->
+            <div id="timeline-container" style="position: relative;">
+                <!-- ユーザーが移動可能な縦線 -->
+                <div class="movable-line" id="movable-line"></div>
+
+                <?php
+                // タイムライン全体の範囲を決定
+                $stmt = $pdo->query("
+        SELECT MIN(start_year) AS min_year, MAX(end_year) AS max_year
+        FROM timeline_events
+    ");
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                $startTimelineYear = max(1700, $result['min_year'] ?? 1700); // 最古の開始年またはデフォルト1700年
+                $endTimelineYear = $result['max_year'] ?? 1801;             // 最新の終了年またはデフォルト1801年
+                $timelineRange = $endTimelineYear - $startTimelineYear;     // 表示範囲の計算
+                ?>
+
+                <?php foreach ($characters as $character): ?>
+                    <div class="row">
+                        <div class="label"><?= htmlspecialchars($character['name']) ?></div>
+                        <div class="bars" id="timeline-bars-<?= htmlspecialchars($character['id']) ?>">
+                            <?php
+                            // イベントを取得し、開始年順に並べる
+                            $stmt = $pdo->prepare("
+                    SELECT start_year, end_year, title, color 
+                    FROM timeline_events 
+                    WHERE character_id = ? 
+                    ORDER BY start_year
+                ");
+                            $stmt->execute([$character['id']]);
+                            $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                            foreach ($events as $event):
+                                $startYear = $event['start_year'];
+                                $endYear = $event['end_year'];
+
+                                // タイムラインの終了範囲を超えないよう補正
+                                $endYear = min($endYear, $endTimelineYear);
+
+                                // 幅と開始位置を計算
+                                $width = ($endYear - $startYear) / $timelineRange * 100; // 幅をパーセントで計算
+                                $marginLeft = ($startYear - $startTimelineYear) / $timelineRange * 100; // 左のマージンをパーセントで計算
+                                ?>
+                                <div class="bar"
+                                    style="width: <?= $width ?>%; margin-left: <?= $marginLeft ?>%; background-color: <?= htmlspecialchars($event['color']) ?>;">
+                                    <span class="event-title"><?= htmlspecialchars($event['title']) ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+
+        </div>
 
 
 
